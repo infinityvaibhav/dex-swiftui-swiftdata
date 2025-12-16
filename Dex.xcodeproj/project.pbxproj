@@ -40,11 +40,6 @@
 			path = DexTests;
 			sourceTree = "<group>";
 		};
-		27A6FAEA2EF1E7340012D34D /* DexUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DexUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,7 +72,6 @@
 			children = (
 				27A6FACA2EF1E7320012D34D /* Dex */,
 				27A6FAE02EF1E7340012D34D /* DexTests */,
-				27A6FAEA2EF1E7340012D34D /* DexUITests */,
 				27A6FAC92EF1E7320012D34D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -152,9 +146,6 @@
 			);
 			dependencies = (
 				27A6FAE92EF1E7340012D34D /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				27A6FAEA2EF1E7340012D34D /* DexUITests */,
 			);
 			name = DexUITests;
 			packageProductDependencies = (
@@ -411,7 +402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infinty.Dex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -439,7 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infinty.Dex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
