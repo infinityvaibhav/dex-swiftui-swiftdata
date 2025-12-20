@@ -20,64 +20,64 @@ struct PokemonDTO: Decodable {
     let sprite: URL
     let shiny: URL
     
-    enum CodingKeys: CodingKey {
+    // MARK: - Helper Structures
+    private struct TypeWrapper: Decodable {
+        let type: NamedValue
+    }
+    
+    private struct NamedValue: Decodable {
+        let name: String
+    }
+    
+    private struct StatWrapper: Decodable {
+        let stat: NamedValue
+        let baseStat: Int16
+    }
+    
+    private struct SpritesData: Decodable {
+        let frontDefault: URL?
+        let frontShiny: URL?
+        
+        enum CodingKeys: String, CodingKey {
+            case frontDefault = "front_default"
+            case frontShiny = "front_shiny"
+        }
+    }
+    
+    // MARK: - Coding Keys
+    enum CodingKeys: String, CodingKey {
         case id
         case name
         case types
         case stats
         case sprites
-        
-        enum TypeDictionaryKeys: CodingKey {
-            case type
-            
-            enum TypeKeys: CodingKey {
-                case name
-            }
-        }
-        
-        enum StatsDictionaryKeys: CodingKey {
-            case baseStat
-        }
-        
-        enum SpriteKeys: String, CodingKey {
-            case sprite = "frontDefault"
-            case shiny = "frontShiny"
-        }
     }
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Decode simple properties
         id = try container.decode(Int16.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         
-        var decodedTypes: [String] = []
-        var typesContainer = try container.nestedUnkeyedContainer(forKey: .types)
-        while !typesContainer.isAtEnd {
-            let typesDictonaryContainer = try typesContainer.nestedContainer(keyedBy: CodingKeys.TypeDictionaryKeys.self)
-            let typeContainer = try typesDictonaryContainer.nestedContainer(keyedBy: CodingKeys.TypeDictionaryKeys.TypeKeys.self, forKey: .type)
-            let type = try typeContainer.decode(String.self, forKey: .name)
-            decodedTypes.append(type)
-        }
-        types = decodedTypes
+        // Decode types with map
+        types = try container.decodeIfPresent([TypeWrapper].self, forKey: .types)?
+            .map { $0.type.name } ?? []
         
-        var decodedStats: [Int16] = []
-        var statsContainer = try container.nestedUnkeyedContainer(forKey: .stats)
-        while !statsContainer.isAtEnd {
-            let statsDictionaryContainer = try statsContainer.nestedContainer(keyedBy: CodingKeys.StatsDictionaryKeys.self)
-            
-            let stat = try statsDictionaryContainer.decode(Int16.self, forKey: .baseStat)
-            decodedStats.append(stat)
-        }
+        // Decode stats by name mapping
+        let statsArray = try container.decodeIfPresent([StatWrapper].self, forKey: .stats) ?? []
+        let statsMap = Dictionary(uniqueKeysWithValues: statsArray.map { ($0.stat.name, $0.baseStat) })
         
-        hp = decodedStats[0]
-        attack = decodedStats[1]
-        defence = decodedStats[2]
-        specialAttack = decodedStats[3]
-        specialDefence = decodedStats[4]
-        speed = decodedStats[5]
+        hp = statsMap["hp"] ?? 0
+        attack = statsMap["attack"] ?? 0
+        defence = statsMap["defense"] ?? 0
+        specialAttack = statsMap["sp-atk"] ?? 0
+        specialDefence = statsMap["sp-def"] ?? 0
+        speed = statsMap["speed"] ?? 0
         
-        let spriteContainer = try container.nestedContainer(keyedBy: CodingKeys.SpriteKeys.self, forKey: .sprites)
-        sprite = try spriteContainer.decode(URL.self, forKey: .sprite)
-        shiny = try spriteContainer.decode(URL.self, forKey: .shiny)
+        // Decode sprites with fallback
+        let spritesData = try container.decodeIfPresent(SpritesData.self, forKey: .sprites)
+        sprite = spritesData?.frontDefault ?? URL(fileURLWithPath: "")
+        shiny = spritesData?.frontShiny ?? URL(fileURLWithPath: "")
     }
 }
