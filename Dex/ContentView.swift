@@ -19,15 +19,17 @@ struct ContentView: View {
     let apiService = APIServices()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(pokedex) { pokemon in
-                    NavigationLink {
-                        Text(pokemon.name ?? "no name")
-                    } label: {
-                        Text(pokemon.name ?? "no name")
+                    NavigationLink(value: pokemon) {
+                        PokedexCellView(pokemon: pokemon)
                     }
                 }
+            }
+            .navigationTitle("Pokedex")
+            .navigationDestination(for: Pokemon.self) { pokemon in
+                Text(pokemon.name ?? "no name")
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
