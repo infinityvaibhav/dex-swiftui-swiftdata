@@ -39,49 +39,73 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(pokedex) { pokemon in
-                    NavigationLink(value: pokemon) {
-                        PokedexCellView(pokemon: pokemon)
+        if pokedex.isEmpty {
+            ContentUnavailableView {
+                Label("No Pokemon", image: .nopokemon)
+            } description: {
+                Text("There aren't any pokemon yet\n Fetch some pokemon to get started!")
+            } actions: {
+                Button("fetch Pokemon", systemImage: "antenna.radiowaves.left.and.right") {
+                    getPokemon(from: 1)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
+        } else {
+            NavigationStack {
+                List {
+                    Section {
+                        ForEach(pokedex) { pokemon in
+                            NavigationLink(value: pokemon) {
+                                PokedexCellView(pokemon: pokemon)
+                            }
+                        }
+                    } footer: {
+                        if pokedex.count < 151 {
+                            ContentUnavailableView {
+                                Label("Missing pokemon", image: .nopokemon)
+                            } description: {
+                                 Text("The fetch was interrupted\n Fetch the rest of the pokemons")
+                            } actions: {
+                                Button("fetch Pokemon", systemImage: "antenna.radiowaves.left.and.right") {
+                                    getPokemon(from: pokedex.count + 1)
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
                     }
                 }
-            }
-            .navigationTitle("Pokedex")
-            .searchable(text: $searchText, prompt: "Find a pokemon")
-            .autocorrectionDisabled()
-            .onChange(of: searchText) {
-                pokedex.nsPredicate = dynamicPredicate
-            }
-            .onChange(of: filterByFavorite) {
-                pokedex.nsPredicate = dynamicPredicate
-            }
-            .navigationDestination(for: Pokemon.self) { pokemon in
-                Text(pokemon.name ?? "no name")
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        filterByFavorite.toggle()
-                    } label: {
-                        Label("Filter by predicate", systemImage: filterByFavorite ? "star.fill": "star")
-                    }
-                    .tint(.yellow)
+                .navigationTitle("Pokedex")
+                .searchable(text: $searchText, prompt: "Find a pokemon")
+                .autocorrectionDisabled()
+                .onChange(of: searchText) {
+                    pokedex.nsPredicate = dynamicPredicate
                 }
-                ToolbarItem {
-                    Button("Add Item", systemImage: "plus") {
-                        getPokemon()
+                .onChange(of: filterByFavorite) {
+                    pokedex.nsPredicate = dynamicPredicate
+                }
+                .navigationDestination(for: Pokemon.self) { pokemon in
+                    Text(pokemon.name ?? "no name")
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            filterByFavorite.toggle()
+                        } label: {
+                            Label("Filter by predicate", systemImage: filterByFavorite ? "star.fill": "star")
+                        }
+                        .tint(.yellow)
                     }
                 }
             }
         }
     }
 
-    private func getPokemon() {
+    private func getPokemon(from id: Int) {
         Task {
-            for id in 1..<152 {
+            for i in id..<152 {
                 do {
-                    let pokemonDTO = try await apiService.fetchPokemon(id)
+                    let pokemonDTO = try await apiService.fetchPokemon(i)
                     let pokemon = Pokemon(context: viewContext)
                     pokemon.id = pokemonDTO.id
                     pokemon.name = pokemonDTO.name
