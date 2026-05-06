@@ -19,8 +19,14 @@ struct PokedexCellView: View {
         .frame(width: 100)
         
         VStack(alignment: .leading) {
-            Text(pokemon.name?.capitalized ?? "NA")
-                .fontWeight(.bold)
+            HStack {
+                Text(pokemon.name?.capitalized ?? "NA")
+                    .fontWeight(.bold)
+                if pokemon.favorite {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
+                }
+            }
             
             HStack {
                 ForEach(pokemon.types ?? [], id: \.self) { type in

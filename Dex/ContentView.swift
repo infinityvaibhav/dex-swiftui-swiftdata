@@ -17,6 +17,7 @@ struct ContentView: View {
     private var pokedex
     
     @State private var searchText: String = ""
+    @State private var filterByFavorite = false
     
     let apiService = APIServices()
     
@@ -29,6 +30,9 @@ struct ContentView: View {
         }
         
         // Filter predicate
+        if filterByFavorite {
+            predicates.append(NSPredicate(format: "favorite == %d", true))
+        }
         
         // Combine predicate
         return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
@@ -49,12 +53,20 @@ struct ContentView: View {
             .onChange(of: searchText) {
                 pokedex.nsPredicate = dynamicPredicate
             }
+            .onChange(of: filterByFavorite) {
+                pokedex.nsPredicate = dynamicPredicate
+            }
             .navigationDestination(for: Pokemon.self) { pokemon in
                 Text(pokemon.name ?? "no name")
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                    Button {
+                        filterByFavorite.toggle()
+                    } label: {
+                        Label("Filter by predicate", systemImage: filterByFavorite ? "star.fill": "star")
+                    }
+                    .tint(.yellow)
                 }
                 ToolbarItem {
                     Button("Add Item", systemImage: "plus") {
