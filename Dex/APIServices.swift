@@ -10,7 +10,7 @@ enum APIError: Error {
     case badResponse
 }
 
-struct APIServices {
+actor APIServices {
     
     private let baseURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
  
