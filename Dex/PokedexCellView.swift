@@ -11,12 +11,19 @@ struct PokedexCellView: View {
     let pokemon: Pokemon
     
     var body: some View {
-        AsyncImage(url: pokemon.sprite) { image in
-            image.resizable().scaledToFit()
-        } placeholder: {
-            ProgressView()
+        if let spriteURL = pokemon.sprite {
+            AsyncImage(url: spriteURL) { image in
+                image.resizable().scaledToFit()
+            } placeholder: {
+                ProgressView()
+            }
+            .frame(width: 100)
+        } else {
+            Image(.nopokemon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100)
         }
-        .frame(width: 100)
         
         VStack(alignment: .leading) {
             HStack {

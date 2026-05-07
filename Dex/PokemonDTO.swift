@@ -17,8 +17,8 @@ struct PokemonDTO: Decodable {
     let specialAttack: Int16
     let specialDefence: Int16
     let speed: Int16
-    let sprite: URL
-    let shiny: URL
+    let sprite: URL?
+    let shiny: URL?
     
     // MARK: - Helper Structures
     private struct TypeWrapper: Decodable {
@@ -71,13 +71,13 @@ struct PokemonDTO: Decodable {
         hp = statsMap["hp"] ?? 0
         attack = statsMap["attack"] ?? 0
         defence = statsMap["defense"] ?? 0
-        specialAttack = statsMap["sp-atk"] ?? 0
-        specialDefence = statsMap["sp-def"] ?? 0
+        specialAttack = statsMap["special-attack"] ?? 0
+        specialDefence = statsMap["special-defense"] ?? 0
         speed = statsMap["speed"] ?? 0
         
         // Decode sprites with fallback
         let spritesData = try container.decodeIfPresent(SpritesData.self, forKey: .sprites)
-        sprite = spritesData?.frontDefault ?? URL(fileURLWithPath: "")
-        shiny = spritesData?.frontShiny ?? URL(fileURLWithPath: "")
+        sprite = spritesData?.frontDefault
+        shiny = spritesData?.frontShiny
     }
 }
