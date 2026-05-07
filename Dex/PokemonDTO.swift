@@ -10,7 +10,7 @@ import Foundation
 struct PokemonDTO: Decodable {
     let id: Int16
     let name: String
-    let types: [String]
+    var types: [String]
     let hp: Int16
     let attack: Int16
     let defense: Int16
@@ -63,6 +63,10 @@ struct PokemonDTO: Decodable {
         // Decode types with map
         types = try container.decodeIfPresent([TypeWrapper].self, forKey: .types)?
             .map { $0.type.name } ?? []
+        
+        if types.count == 2 && types[0] == "normal" {
+            types.swapAt(0, 1)
+        }
         
         // Decode stats by name mapping
         let statsArray = try container.decodeIfPresent([StatWrapper].self, forKey: .stats) ?? []
