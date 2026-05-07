@@ -124,7 +124,7 @@ struct ContentView: View {
                     pokemon.types = pokemonDTO.types
                     pokemon.hp = pokemonDTO.hp
                     pokemon.attack = pokemonDTO.attack
-                    pokemon.defence = pokemonDTO.defence
+                    pokemon.defense = pokemonDTO.defense
                     pokemon.specialAttack = pokemonDTO.specialAttack
                     pokemon.specialDefence = pokemonDTO.specialDefence
                     pokemon.speed = pokemonDTO.speed

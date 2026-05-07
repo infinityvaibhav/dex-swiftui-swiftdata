@@ -32,7 +32,7 @@ extension Pokemon {
         [
             Stat(id: 1, name: "HP", value: hp),
             Stat(id: 2, name: "Attack", value: attack),
-            Stat(id: 3, name: "Defence", value: defence),
+            Stat(id: 3, name: "Defense", value: defense),
             Stat(id: 4, name: "Special Attack", value: specialAttack),
             Stat(id: 5, name: "Special Defence", value: specialDefence),
             Stat(id: 6, name: "Speed", value: speed)

@@ -13,7 +13,7 @@ struct PokemonDTO: Decodable {
     let types: [String]
     let hp: Int16
     let attack: Int16
-    let defence: Int16
+    let defense: Int16
     let specialAttack: Int16
     let specialDefence: Int16
     let speed: Int16
@@ -70,7 +70,7 @@ struct PokemonDTO: Decodable {
         
         hp = statsMap["hp"] ?? 0
         attack = statsMap["attack"] ?? 0
-        defence = statsMap["defense"] ?? 0
+        defense = statsMap["defense"] ?? 0
         specialAttack = statsMap["special-attack"] ?? 0
         specialDefence = statsMap["special-defense"] ?? 0
         speed = statsMap["speed"] ?? 0
