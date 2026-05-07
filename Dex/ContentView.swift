@@ -11,10 +11,9 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
-    @FetchRequest<Pokemon>(
-        sortDescriptors: [SortDescriptor(\.id)],
-        animation: .default)
-    private var pokedex
+    @FetchRequest<Pokemon>(sortDescriptors: [SortDescriptor(\.id)], animation: .default) private var pokedex
+    
+    @FetchRequest<Pokemon>(sortDescriptors: []) private var allPokedex
     
     @State private var searchText: String = ""
     @State private var filterByFavorite = false
@@ -39,7 +38,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        if pokedex.isEmpty {
+        if allPokedex.isEmpty {
             ContentUnavailableView {
                 Label("No Pokemon", image: .nopokemon)
             } description: {
@@ -59,9 +58,21 @@ struct ContentView: View {
                             NavigationLink(value: pokemon) {
                                 PokedexCellView(pokemon: pokemon)
                             }
+                            .swipeActions(edge: .leading) {
+                                Button(pokemon.favorite ? "Remove from favorite" : "Add to favorite", systemImage: "star") {
+                                    pokemon.favorite.toggle()
+                                    
+                                    do {
+                                        try viewContext.save()
+                                    } catch {
+                                        print(error)
+                                    }
+                                }
+                                .tint(pokemon.favorite ? .gray : .yellow)
+                            }
                         }
                     } footer: {
-                        if pokedex.count < 151 {
+                        if allPokedex.count < 151 {
                             ContentUnavailableView {
                                 Label("Missing pokemon", image: .nopokemon)
                             } description: {
