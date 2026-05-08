@@ -11,7 +11,7 @@ struct PokedexCellView: View {
     let pokemon: Pokemon
     
     var body: some View {
-        if let spriteURL = pokemon.sprite {
+        if let spriteURL = pokemon.spriteURL {
             AsyncImage(url: spriteURL) { image in
                 image.resizable().scaledToFit()
             } placeholder: {

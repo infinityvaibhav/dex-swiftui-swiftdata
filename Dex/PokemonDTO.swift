@@ -17,8 +17,8 @@ struct PokemonDTO: Decodable {
     let specialAttack: Int16
     let specialDefence: Int16
     let speed: Int16
-    let sprite: URL?
-    let shiny: URL?
+    let spriteURL: URL?
+    let shinyURL: URL?
     
     // MARK: - Helper Structures
     private struct TypeWrapper: Decodable {
@@ -35,12 +35,12 @@ struct PokemonDTO: Decodable {
     }
     
     private struct SpritesData: Decodable {
-        let frontDefault: URL?
-        let frontShiny: URL?
+        let spriteURL: URL?
+        let shinyURL: URL?
         
         enum CodingKeys: String, CodingKey {
-            case frontDefault = "front_default"
-            case frontShiny = "front_shiny"
+            case spriteURL = "frontDefault"
+            case shinyURL = "frontShiny"
         }
     }
     
@@ -81,7 +81,7 @@ struct PokemonDTO: Decodable {
         
         // Decode sprites with fallback
         let spritesData = try container.decodeIfPresent(SpritesData.self, forKey: .sprites)
-        sprite = spritesData?.frontDefault
-        shiny = spritesData?.frontShiny
+        spriteURL = spritesData?.spriteURL
+        shinyURL = spritesData?.shinyURL
     }
 }

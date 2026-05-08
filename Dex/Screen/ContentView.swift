@@ -128,8 +128,8 @@ struct ContentView: View {
                     pokemon.specialAttack = pokemonDTO.specialAttack
                     pokemon.specialDefence = pokemonDTO.specialDefence
                     pokemon.speed = pokemonDTO.speed
-                    pokemon.sprite = pokemonDTO.sprite
-                    pokemon.shiny = pokemonDTO.shiny
+                    pokemon.spriteURL = pokemonDTO.spriteURL
+                    pokemon.shinyURL = pokemonDTO.shinyURL
                     
                     do {
                         try viewContext.save()
@@ -140,6 +140,21 @@ struct ContentView: View {
                     throw error
                 }
             }
+            await storeSprites()
+        }
+    }
+    
+    private func storeSprites() async {
+        do {
+            for pokemon in allPokedex {
+                pokemon.sprite = try await URLSession.shared.data(from: pokemon.spriteURL!).0
+                pokemon.shiny = try await URLSession.shared.data(from: pokemon.shinyURL!).0
+                try viewContext.save()
+                
+                print("Sprites stored: \(pokemon.id): \(pokemon.name!.capitalized)")
+            }
+        } catch {
+            print(error)
         }
     }
 }

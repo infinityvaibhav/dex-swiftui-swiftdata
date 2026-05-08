@@ -22,7 +22,7 @@ struct PokemonDetailView: View {
                     .scaledToFit()
                     .shadow(radius: 6)
                 
-                AsyncImage(url: showShiny ? pokemon.shiny : pokemon.sprite) { image in
+                AsyncImage(url: showShiny ? pokemon.shinyURL : pokemon.spriteURL) { image in
                     image
                         .interpolation(.none)
                         .resizable()
