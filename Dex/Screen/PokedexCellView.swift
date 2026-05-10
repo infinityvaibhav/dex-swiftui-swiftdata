@@ -29,7 +29,7 @@ struct PokedexCellView: View {
         
         VStack(alignment: .leading) {
             HStack {
-                Text(pokemon.name?.capitalized ?? "NA")
+                Text(pokemon.name.capitalized ?? "NA")
                     .fontWeight(.bold)
                 if pokemon.favorite {
                     Image(systemName: "star.fill")

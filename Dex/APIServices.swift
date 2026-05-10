@@ -14,6 +14,7 @@ actor APIServices {
     
     private let baseURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
  
+    @MainActor
     func fetchPokemon(_ id: Int) async throws -> Pokemon {
         // 1. get URl
         let fetchURL = baseURL.appending(path: String(id))

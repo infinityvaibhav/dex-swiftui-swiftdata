@@ -6,14 +6,12 @@
 //
 
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.modelContext) private var modelContext
 
-    @FetchRequest<Pokemon>(sortDescriptors: [SortDescriptor(\.id)], animation: .default) private var pokedex
-    
-    @FetchRequest<Pokemon>(sortDescriptors: []) private var allPokedex
+    @Query(sort: \Pokemon.id, animation: .default) private var pokedex: [Pokemon]
     
     @State private var searchText: String = ""
     @State private var filterByFavorite = false
@@ -38,7 +36,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        if allPokedex.isEmpty {
+        if pokedex.isEmpty {
             ContentUnavailableView {
                 Label("No Pokemon", image: .nopokemon)
             } description: {
@@ -63,7 +61,7 @@ struct ContentView: View {
                                     pokemon.favorite.toggle()
                                     
                                     do {
-                                        try viewContext.save()
+                                        try modelContext.save()
                                     } catch {
                                         print(error)
                                     }
@@ -72,7 +70,7 @@ struct ContentView: View {
                             }
                         }
                     } footer: {
-                        if allPokedex.count < 151 {
+                        if pokedex.count < 151 {
                             ContentUnavailableView {
                                 Label("Missing pokemon", image: .nopokemon)
                             } description: {
@@ -89,15 +87,8 @@ struct ContentView: View {
                 .navigationTitle("Pokedex")
                 .searchable(text: $searchText, prompt: "Find a pokemon")
                 .autocorrectionDisabled()
-                .onChange(of: searchText) {
-                    pokedex.nsPredicate = dynamicPredicate
-                }
-                .onChange(of: filterByFavorite) {
-                    pokedex.nsPredicate = dynamicPredicate
-                }
                 .navigationDestination(for: Pokemon.self) { pokemon in
-                    PokemonDetailView()
-                        .environmentObject(pokemon)
+                    PokemonDetailView(pokemon: pokemon)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -118,24 +109,7 @@ struct ContentView: View {
             for i in id..<152 {
                 do {
                     let pokemonDTO = try await apiService.fetchPokemon(i)
-                    let pokemon = Pokemon(context: viewContext)
-                    pokemon.id = pokemonDTO.id
-                    pokemon.name = pokemonDTO.name
-                    pokemon.types = pokemonDTO.types
-                    pokemon.hp = pokemonDTO.hp
-                    pokemon.attack = pokemonDTO.attack
-                    pokemon.defense = pokemonDTO.defense
-                    pokemon.specialAttack = pokemonDTO.specialAttack
-                    pokemon.specialDefence = pokemonDTO.specialDefence
-                    pokemon.speed = pokemonDTO.speed
-                    pokemon.spriteURL = pokemonDTO.spriteURL
-                    pokemon.shinyURL = pokemonDTO.shinyURL
-                    
-                    do {
-                        try viewContext.save()
-                    } catch {
-                        print(error)
-                    }
+                    modelContext.insert(pokemonDTO)
                 } catch {
                     throw error
                 }
@@ -146,12 +120,12 @@ struct ContentView: View {
     
     private func storeSprites() async {
         do {
-            for pokemon in allPokedex {
+            for pokemon in pokedex {
                 pokemon.sprite = try await URLSession.shared.data(from: pokemon.spriteURL!).0
                 pokemon.shiny = try await URLSession.shared.data(from: pokemon.shinyURL!).0
-                try viewContext.save()
+                try modelContext.save()
                 
-                print("Sprites stored: \(pokemon.id): \(pokemon.name!.capitalized)")
+                print("Sprites stored: \(pokemon.id): \(pokemon.name.capitalized)")
             }
         } catch {
             print(error)
@@ -160,5 +134,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ContentView()
+        .modelContainer(PersistenceController.preview)
 }

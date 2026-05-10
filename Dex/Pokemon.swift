@@ -11,7 +11,7 @@ import SwiftData
 import SwiftUI
 
 @Model
-class Pokemon: Decodable {
+final class Pokemon: Decodable {
     @Attribute(.unique) var id: Int
     var name: String
     var types: [String]
