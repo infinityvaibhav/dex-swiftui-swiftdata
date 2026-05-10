@@ -7,7 +7,7 @@
 
 import WidgetKit
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
@@ -20,44 +20,43 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 10 {
-            let entryDate = Calendar.current.date(byAdding: .second, value: hourOffset * 5, to: currentDate)!
-            let entryPokemon = randomPokemon
-            let entry = SimpleEntry(date: entryDate,
-                                    name: entryPokemon.name!,
-                                    types: entryPokemon.types!,
-                                    sprite: entryPokemon.spriteImage)
-            entries.append(entry)
+        Task { @MainActor in
+            var entries: [SimpleEntry] = []
+            
+            // Generate a timeline consisting of five entries an hour apart, starting from the current date.
+            let currentDate = Date()
+            if let results = try? sharedModelContainer.mainContext.fetch(FetchDescriptor<Pokemon>()) {
+                for hourOffset in 0 ..< 10 {
+                    let entryDate = Calendar.current.date(byAdding: .second, value: hourOffset * 5, to: currentDate)!
+                    let entryPokemon = results.randomElement()!
+                    let entry = SimpleEntry(date: entryDate,
+                                            name: entryPokemon.name,
+                                            types: entryPokemon.types,
+                                            sprite: entryPokemon.spriteImage)
+                    entries.append(entry)
+                }
+                
+                let timeline = Timeline(entries: entries, policy: .atEnd)
+                completion(timeline)
+            } else {
+                let timeline = Timeline(entries: [SimpleEntry.placeholder, SimpleEntry.placeholder2], policy: .atEnd)
+                completion(timeline)
+            }
         }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
     }
     
-    var randomPokemon: Pokemon {
-        var results: [Pokemon] = []
-        
-        do {
-            let viewContext = PersistenceController.shared.container
-                .viewContext
-            results = try viewContext.fetch(Pokemon.fetchRequest())
-        } catch {
-            print("Couldn't fetch")
-        }
-        
-        if let randomPokemon = results.randomElement() {
-            return randomPokemon
-        }
-        return PersistenceController.previewPokemon
-    }
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            Pokemon.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
 }
 
 struct SimpleEntry: TimelineEntry {

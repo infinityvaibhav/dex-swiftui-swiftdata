@@ -14,7 +14,8 @@ actor APIServices {
     
     private let baseURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
  
-    func fetchPokemon(_ id: Int) async throws -> PokemonDTO {
+    @MainActor
+    func fetchPokemon(_ id: Int) async throws -> Pokemon {
         // 1. get URl
         let fetchURL = baseURL.appending(path: String(id))
         
@@ -29,7 +30,7 @@ actor APIServices {
         // 4. decode data
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let pokemon = try decoder.decode(PokemonDTO.self, from: data)
+        let pokemon = try decoder.decode(Pokemon.self, from: data)
         
         print("Fetched PokemonDTO: \(pokemon.id): \(pokemon.name)")
         
